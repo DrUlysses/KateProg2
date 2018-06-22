@@ -5,6 +5,8 @@ It counts the number of entered paired symbol sequences found in the document. T
 First it does decodes the document, after the main loop counts the symbol sequences entrances in the whole document line by line 
 based on average number of words in the sentance.
 
+It also creates the pairs from each word from the top left window and bottom left window and from the bottom left window and top left window.
+
 After the first word in the words pair is found (The symbol sequence in the text contains the first word) the algorythm starts to search for the second one in the distance of
 average number of words in the sentance using the same logic.
 
