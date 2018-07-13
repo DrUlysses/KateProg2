@@ -10,9 +10,9 @@ using Independentsoft.Office.Odf;
 using System.Threading.Tasks;
 
 namespace KateProg2 {
-    public partial class Form1 : Form {
+    public partial class MainWindowForm : Form {
 
-        public Form1() {
+        public MainWindowForm() {
             InitializeComponent();
             loadFonts();
         }
@@ -38,7 +38,14 @@ namespace KateProg2 {
             openFile.Filter = "Text (*.txt; *.doc; *.docx; *.odt; *.rtf; *.pdf; *.chm)|*.txt; *.doc; *.docx; *.odt; *.rtf; *.pdf; *.chm ";
 
             if (openFile.ShowDialog() == DialogResult.OK)
-                searchEngine.AddDocument(openFile.FileName);
+            {
+                averageWordsInSentanceLabel.Text = searchEngine.AddDocument(openFile.FileName);
+                pathToOpenedFilesLLabel.Text = openFile.FileName;
+                SelectedFilesPictureBox.Visible = false;
+                OpenedFilesBox.Items.Add(openFile.SafeFileName);
+                if (searchEngine.GetDocumentsCount() == 1 && OpenedFilesBox.Items.Count > 1)
+                    OpenedFilesBox.Items.RemoveAt(0);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e) {
@@ -78,21 +85,28 @@ namespace KateProg2 {
             openFile.Filter = "Text (*.txt)|*.txt";
 
             if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                uint posCount = 0;
+                uint negCount = 0;
+                uint neutrCount = 0;
                 using (StreamReader str = new StreamReader(openFile.FileName, Encoding.Default))
                 {
                     SecWordType current = SecWordType.POSITIVE;
                     while (!str.EndOfStream)
                     {
                         string temp = str.ReadLine().ToLower();
-                        if (temp.Contains("#positive")) {
+                        if (temp.Contains("#positive"))
+                        {
                             current = SecWordType.POSITIVE;
                             temp = str.ReadLine().ToLower();
                         }
-                        else if (temp.Contains("#negative")) {
+                        else if (temp.Contains("#negative"))
+                        {
                             current = SecWordType.NEGATIVE;
                             temp = str.ReadLine().ToLower();
                         }
-                        else if (temp.Contains("#neutral")) {
+                        else if (temp.Contains("#neutral"))
+                        {
                             current = SecWordType.NEUTRAL;
                             temp = str.ReadLine().ToLower();
                         }
@@ -100,18 +114,37 @@ namespace KateProg2 {
                         {
                             case SecWordType.POSITIVE:
                                 searchEngine.AddPositiveWord(temp);
+                                posCount++;
                                 break;
                             case SecWordType.NEGATIVE:
                                 searchEngine.AddNegativeWord(temp);
+                                negCount++;
                                 break;
                             case SecWordType.NEUTRAL:
                                 searchEngine.AddNeutralWord(temp);
+                                neutrCount++;
                                 break;
                             default:
                                 break;
                         }
                     }
                 }
+                pathToOpenedFilesLLabel.Text = openFile.FileName;
+                averageWordsInSentanceLabel.Text = "Loaded Positive: " + posCount + " Negative: " + negCount + " Neutral: " + neutrCount + " .";
+            }
+        }
+
+        private void OpenedFilesBox_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            searchEngine.RemoveDocument(OpenedFilesBox.SelectedItem.ToString());
+            pathToOpenedFilesLLabel.Text = "";
+            averageWordsInSentanceLabel.Text = "";
+            if (OpenedFilesBox.Items.Count > 1)
+                OpenedFilesBox.Items.RemoveAt(OpenedFilesBox.SelectedIndex);
+            else
+            {
+                SelectedFilesPictureBox.Visible = true;
+            }
         }
     }
 
@@ -161,15 +194,15 @@ namespace KateProg2 {
 
         public override string ToString()
         {
-            uint negativeCount = (uint)this.negativeEntries.Capacity;
-            uint positiveCount = (uint)this.positiveEntries.Capacity;
-            uint neutralCount = (uint)this.neutralEntries.Capacity;
+            uint negativeCount = (uint)this.negativeEntries.Count;
+            uint positiveCount = (uint)this.positiveEntries.Count;
+            uint neutralCount = (uint)this.neutralEntries.Count;
             if (negativeCount > positiveCount && negativeCount >= 2)
                 return this.word + " [ positive ( " + positiveCount +
                                     " )  ***negative ( " + negativeCount +
                                     " )***  neutral ( " + neutralCount +
                                     " ) ]";
-            else if (positiveCount > negativeCount && neutralCount >= 2)
+            else if (positiveCount > negativeCount && positiveCount >= 2)
                 return this.word + " [ ***positive ( " + positiveCount +
                                     " )***  negative ( " + negativeCount +
                                     " )  neutral ( " + neutralCount +
@@ -215,6 +248,7 @@ namespace KateProg2 {
             return wordsCount;
         }
 
+        public string GetPath() => this.path;
     }
 
     public class SearchEngine
@@ -226,7 +260,17 @@ namespace KateProg2 {
         private List<string> positiveWords;
         private List<string> neutralWords;
 
-        public SearchEngine() { }
+        public SearchEngine()
+        {
+            this.documents = new List<Document>();
+            this.mainWords = new Dictionary<string, MainWord>();
+            this.wordsPairs = new List<WordsPair>();
+            this.negativeWords = new List<string>();
+            this.positiveWords = new List<string>();
+            this.neutralWords = new List<string>();
+        }
+
+        public uint GetDocumentsCount() => (uint)this.documents.Count;
 
         public string AddDocument(string fileName)
         {
@@ -270,6 +314,15 @@ namespace KateProg2 {
             this.documents.Add(document);
             //check counts
             return "Words in File ~ " + document.GetWordsCount() + ",  Average Words in the Sentence: " + document.GetAverageWordsInSentence();
+        }
+
+        public void RemoveDocument(string path)
+        {
+            Parallel.ForEach(this.documents, (document) =>
+            {
+                if (document.GetPath().Contains(path))
+                    this.documents.Remove(document);
+            });
         }
 
         public void AddNegativeWord(string word)
@@ -347,7 +400,7 @@ namespace KateProg2 {
             });
 
             string result = "";
-            Parallel.ForEach(this.mainWords, (mainWord) =>
+            Parallel.ForEach(this.mainWords.Values, (mainWord) =>
             {
                 result += mainWord.ToString() + "\r\n";
             });
@@ -405,7 +458,10 @@ namespace KateProg2 {
                 throw new ArgumentException("Word to check is empty or null", nameof(word));
 
             if (!findFirst && word.Contains(firstWordCutted))
+            {
                 findFirst = true;
+                this.entry += word;
+            }
             else if (findFirst && word.Contains(secondWordCutted) && this.distance <= distance)
             {
                 this.distance = 0;
