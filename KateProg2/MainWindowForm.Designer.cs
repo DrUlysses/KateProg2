@@ -134,6 +134,7 @@
             // OpenedFilesBox
             // 
             this.OpenedFilesBox.CheckOnClick = true;
+            this.OpenedFilesBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.OpenedFilesBox.FormattingEnabled = true;
             this.OpenedFilesBox.HorizontalScrollbar = true;
             this.OpenedFilesBox.Location = new System.Drawing.Point(579, 23);
@@ -144,6 +145,7 @@
             // 
             // OutputListBox
             // 
+            this.OutputListBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.OutputListBox.FormattingEnabled = true;
             this.OutputListBox.Location = new System.Drawing.Point(290, 23);
             this.OutputListBox.Name = "OutputListBox";

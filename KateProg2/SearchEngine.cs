@@ -115,6 +115,12 @@ namespace KateProg2
             this.mainWords.Add(word, new MainWord(word));
         }
 
+        public void ClearResults()
+        {
+            this.wordsPairs = new List<WordsPair>();
+            this.mainWords = new Dictionary<string, MainWord>();
+        }
+
         public void ComputeEntries()
         {
             Parallel.ForEach(this.mainWords.Values, (mainWord) =>

@@ -66,5 +66,12 @@ namespace KateProg2
         public List<string> GetPositiveEntries() => this.positiveEntries;
         public List<string> GetNegativeEntries() => this.negativeEntries;
         public List<string> GetNeutralEntries() => this.neutralEntries;
+
+        public void DeleteAllEntries()
+        {
+            this.positiveEntries = new List<string>();
+            this.negativeEntries = new List<string>();
+            this.neutralEntries = new List<string>();
+        }
     }
 }

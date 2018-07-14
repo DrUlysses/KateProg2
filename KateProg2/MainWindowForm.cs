@@ -43,6 +43,9 @@ namespace KateProg2 {
         }
 
         private void Button2_Click(object sender, EventArgs e) {
+            // Clear previous output computation
+            OutputListBox.Items.Clear();
+            searchEngine.ClearResults();
             // Read dictionary words
             foreach (string temp in firstWordsInputBox.Text.Split('\r', '\n'))
                 searchEngine.AddMainWord(temp.ToLower());
