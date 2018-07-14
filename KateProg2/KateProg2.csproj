@@ -76,12 +76,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Document.cs" />
     <Compile Include="MainWindowForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainWindowForm.Designer.cs">
       <DependentUpon>MainWindowForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainWord.cs" />
     <Compile Include="MainWordEntriesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +92,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SearchEngine.cs" />
+    <Compile Include="SecWordType.cs" />
+    <Compile Include="WordsPair.cs" />
     <EmbeddedResource Include="MainWindowForm.resx">
       <DependentUpon>MainWindowForm.cs</DependentUpon>
     </EmbeddedResource>

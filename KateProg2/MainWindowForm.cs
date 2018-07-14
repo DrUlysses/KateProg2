@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing.Text;
-using org.apache.pdfbox.pdmodel;
-using org.apache.pdfbox.util;
-using Independentsoft.Office.Odf;
 using System.Threading.Tasks;
 
 namespace KateProg2 {
     public partial class MainWindowForm : Form {
+        private PrivateFontCollection font;
+        private SearchEngine searchEngine = new SearchEngine();
 
         public MainWindowForm() {
             InitializeComponent();
-            loadFonts();
+            LoadFonts();
         }
 
-        PrivateFontCollection font;
-        
-        private void loadFonts() {
+        private void LoadFonts() {
             // Try to load fonts and do nothing on fail
             this.font = new PrivateFontCollection();
             try {
@@ -29,9 +25,7 @@ namespace KateProg2 {
             catch { }
         }
 
-        SearchEngine searchEngine = new SearchEngine();
-
-        private void button1_Click(object sender, EventArgs e) {
+        private void Button1_Click(object sender, EventArgs e) {
             //open the file
             OpenFileDialog openFile = new OpenFileDialog();
 
@@ -48,13 +42,19 @@ namespace KateProg2 {
             }
         }
 
-        private void button2_Click(object sender, EventArgs e) {
+        private void Button2_Click(object sender, EventArgs e) {
             // Read dictionary words
             foreach (string temp in firstWordsInputBox.Text.Split('\r', '\n'))
-                searchEngine.AddMainWord(temp);
+                searchEngine.AddMainWord(temp.ToLower());
+            // Run calculation
+            searchEngine.ComputeEntries();
             // Output
-            outputBox.Text = searchEngine.ComputeEntries();
+            Parallel.ForEach(searchEngine.GetMainWords(), (mainWord) =>
+            {
+                OutputListBox.Items.Add(mainWord.ToString());
+            });
         }
+
         // Drag and drop
         private void Form1_onDragEnter(object sender, DragEventArgs e) {
             dragNDropImageBox.Visible = true;
@@ -77,12 +77,13 @@ namespace KateProg2 {
             dragNDropImageBox.Visible = false;
         }
 
-        private void loadSecWordsButton_Click(object sender, EventArgs e)
+        private void LoadSecWordsButton_Click(object sender, EventArgs e)
         {
             //open the file
-            OpenFileDialog openFile = new OpenFileDialog();
-
-            openFile.Filter = "Text (*.txt)|*.txt";
+            OpenFileDialog openFile = new OpenFileDialog
+            {
+                Filter = "Text (*.txt)|*.txt"
+            };
 
             if (openFile.ShowDialog() == DialogResult.OK)
             {
@@ -146,347 +147,16 @@ namespace KateProg2 {
                 SelectedFilesPictureBox.Visible = true;
             }
         }
-    }
 
-    public enum SecWordType
-    {
-        POSITIVE,
-        NEGATIVE,
-        NEUTRAL
-    }
-
-    public class MainWord
-    {
-        private string word;
-        private List<string> positiveEntries;
-        private List<string> negativeEntries;
-        private List<string> neutralEntries;
-
-        public MainWord(string word) {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("First word is null or empty", nameof(word));
-            this.word = word;
-            this.positiveEntries = new List<string>();
-            this.negativeEntries = new List<string>();
-            this.neutralEntries = new List<string>();
-        }
-
-        public string GetWord() => this.word;
-
-        public void AddEntries(WordsPair wordsPair)
+        private void OutputListBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            SecWordType secWordType = wordsPair.GetSecWordType();
-            switch (secWordType)
-            {
-                case SecWordType.POSITIVE:
-                    this.positiveEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                case SecWordType.NEGATIVE:
-                    this.negativeEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                case SecWordType.NEUTRAL:
-                    this.neutralEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                default:
-                    break;
-            }
+            string tempWordName = OutputListBox.SelectedItem.ToString().Split('[')[0];
+
+            MainWord tempWord = searchEngine.GetMainWord(tempWordName.Substring(0, tempWordName.Length - 1));
+
+            MainWordEntriesForm form = new MainWordEntriesForm(tempWord);
+            
+            form.Show();
         }
-
-        public override string ToString()
-        {
-            uint negativeCount = (uint)this.negativeEntries.Count;
-            uint positiveCount = (uint)this.positiveEntries.Count;
-            uint neutralCount = (uint)this.neutralEntries.Count;
-            if (negativeCount > positiveCount && negativeCount >= 2)
-                return this.word + " [ positive ( " + positiveCount +
-                                    " )  ***negative ( " + negativeCount +
-                                    " )***  neutral ( " + neutralCount +
-                                    " ) ]";
-            else if (positiveCount > negativeCount && positiveCount >= 2)
-                return this.word + " [ ***positive ( " + positiveCount +
-                                    " )***  negative ( " + negativeCount +
-                                    " )  neutral ( " + neutralCount +
-                                    " ) ]";
-            else
-                return this.word + " [ positive ( " + positiveCount +
-                                    " )  negative ( " + negativeCount +
-                                    " )  ***neutral ( " + neutralCount +
-                                    " )*** ]";
-        }
-    }
-
-    public class Document {
-        public RichTextBox textBox = new RichTextBox();
-        private uint averageWordsInSentence;
-        private int wordsCount;
-        private string path;
-
-        public Document(string path) {
-            if (string.IsNullOrEmpty(path))
-                throw new ArgumentException("Document path is null or empty", nameof(path));
-
-            this.path = path;
-            this.averageWordsInSentence = 0;
-            this.wordsCount = 0;
-        }
-
-        public uint GetAverageWordsInSentence() {
-            if(averageWordsInSentence == 0)
-            {
-                if (this.wordsCount == 0)
-                    averageWordsInSentence = (uint)(this.textBox.Text.Split(' ').Length / this.textBox.Text.Split('.').Length);
-                else
-                    averageWordsInSentence = (uint)(this.wordsCount / textBox.Text.Split('.').Length);
-            }
-
-            return averageWordsInSentence;
-        }
-
-        public int GetWordsCount() {
-            if(wordsCount == 0)
-                wordsCount = textBox.Text.Split(' ').Length;
-            return wordsCount;
-        }
-
-        public string GetPath() => this.path;
-    }
-
-    public class SearchEngine
-    {
-        private List<Document> documents;
-        private Dictionary<string, MainWord> mainWords;
-        private List<WordsPair> wordsPairs;
-        private List<string> negativeWords;
-        private List<string> positiveWords;
-        private List<string> neutralWords;
-
-        public SearchEngine()
-        {
-            this.documents = new List<Document>();
-            this.mainWords = new Dictionary<string, MainWord>();
-            this.wordsPairs = new List<WordsPair>();
-            this.negativeWords = new List<string>();
-            this.positiveWords = new List<string>();
-            this.neutralWords = new List<string>();
-        }
-
-        public uint GetDocumentsCount() => (uint)this.documents.Count;
-
-        public string AddDocument(string fileName)
-        {
-            if (string.IsNullOrEmpty(fileName))
-                throw new ArgumentException("Document path is null or empty", nameof(fileName));
-
-            Document document = new Document(fileName);
-
-            //Read file
-            //if .rtf
-            if (fileName.Substring(fileName.Length - 5, 5).Contains("rtf"))
-                document.textBox.Rtf = File.ReadAllText(fileName);
-            //if .pdf
-            else if (fileName.Substring(fileName.Length - 5, 5).Contains("pdf"))
-            {
-                PDDocument doc = null;
-                try
-                {
-                    doc = PDDocument.load(fileName);
-                    PDFTextStripper stripper = new PDFTextStripper();
-                    document.textBox.Text = stripper.getText(doc);
-                }
-                finally
-                {
-                    if (document != null)
-                        doc.close();
-                }
-            }
-            //if .odt
-            else if (fileName.Substring(fileName.Length - 5, 5).Contains("odt"))
-            {
-                TextDocument doc = new TextDocument(fileName);
-                document.textBox.Text = doc.ToText();
-            }
-            //if all else
-            else
-                using (StreamReader str = new StreamReader(fileName, Encoding.Default))
-                    while (!str.EndOfStream)
-                        document.textBox.AppendText(str.ReadLine().ToLower() + "\r\n");
-
-            this.documents.Add(document);
-            //check counts
-            return "Words in File ~ " + document.GetWordsCount() + ",  Average Words in the Sentence: " + document.GetAverageWordsInSentence();
-        }
-
-        public void RemoveDocument(string path)
-        {
-            Parallel.ForEach(this.documents, (document) =>
-            {
-                if (document.GetPath().Contains(path))
-                    this.documents.Remove(document);
-            });
-        }
-
-        public void AddNegativeWord(string word)
-        {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("Negative word to add is empty or null", nameof(word));
-
-            negativeWords.Add(word);
-        }
-
-        public void AddPositiveWord(string word)
-        {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("Positive word to add is empty or null", nameof(word));
-
-            positiveWords.Add(word);
-        }
-
-        public void AddNeutralWord(string word)
-        {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("Neutral word to add is empty or null", nameof(word));
-
-            neutralWords.Add(word);
-        }
-
-        public void AddMainWord(string word)
-        {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("Main word to add is null or empty", nameof(word));
-
-            this.mainWords.Add(word, new MainWord(word));
-        }
-
-        public string ComputeEntries()
-        {
-            Parallel.ForEach(this.mainWords.Values, (mainWord) =>
-            {
-                Parallel.ForEach(this.negativeWords, (negativeWord) =>
-                {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), negativeWord, true, SecWordType.NEGATIVE));
-                    this.wordsPairs.Add(new WordsPair(negativeWord, mainWord.GetWord(), false, SecWordType.NEGATIVE));
-                });
-                Parallel.ForEach(this.positiveWords, (positiveWord) =>
-                {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), positiveWord, true, SecWordType.POSITIVE));
-                    this.wordsPairs.Add(new WordsPair(positiveWord, mainWord.GetWord(), false, SecWordType.POSITIVE));
-                });
-                Parallel.ForEach(this.neutralWords, (neutralWord) =>
-                {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), neutralWord, true, SecWordType.NEUTRAL));
-                    this.wordsPairs.Add(new WordsPair(neutralWord, mainWord.GetWord(), false, SecWordType.NEUTRAL));
-                });
-            });
-
-            Parallel.ForEach(this.documents, (currentDocument) =>
-            {
-                foreach (string line in currentDocument.textBox.Text.Split('\r', '\n'))
-                {
-                    string[] lineWords = line.Split(' ');
-                    if (lineWords.Length != 0 && lineWords[0] != "")
-                    { //TODO: handle "-" on line endings.
-                        foreach (string word in lineWords)
-                            Parallel.ForEach(this.wordsPairs, (wordsPair) =>
-                            {
-                                wordsPair.CheckWord(word, currentDocument.GetAverageWordsInSentence());
-                            });
-                    }
-                } 
-            });
-
-            Parallel.ForEach(this.wordsPairs, (wordPair) => 
-            {
-                this.mainWords[wordPair.GetMain()].AddEntries(wordPair);
-            });
-
-            string result = "";
-            Parallel.ForEach(this.mainWords.Values, (mainWord) =>
-            {
-                result += mainWord.ToString() + "\r\n";
-            });
-            return result;
-        }
-    }
-    
-    public class WordsPair
-    {
-        private string firstWord;
-        private string firstWordCutted;
-        private string secondWord;
-        private string secondWordCutted;
-        private uint distance;
-        private bool findFirst;
-        private List<string> entries;
-        private string entry;
-        private bool isFirstWordMain;
-        private SecWordType secWordType;
-
-        public WordsPair(string firstWord, string secondWord, bool isFirstWordMain, SecWordType secWordType)
-        {
-            if (string.IsNullOrEmpty(firstWord))
-                throw new ArgumentException("firstWord is null or empty", nameof(firstWord));
-
-            if (string.IsNullOrEmpty(secondWord))
-                throw new ArgumentException("secondWord is null or empty", nameof(secondWord));
-
-            this.firstWord = firstWord;
-            this.secondWord = secondWord;
-            this.isFirstWordMain = isFirstWordMain;
-            this.secWordType = secWordType;
-
-            int tempLength = firstWord.Length;
-            if (tempLength > 3)
-                this.firstWordCutted = firstWord.Substring(0, tempLength - 3);
-            else
-                this.firstWordCutted = firstWord.Substring(0, tempLength);
-
-            tempLength = secondWord.Length;
-            if (tempLength > 3)
-                this.secondWordCutted = secondWord.Substring(0, tempLength - 3);
-            else
-                this.secondWordCutted = secondWord.Substring(0, tempLength);
-
-            this.distance = 0;
-            this.findFirst = false;
-            this.entries = new List<string>();
-            this.entry = "";
-        }
-
-        public void CheckWord(string word, uint distance)
-        {
-            if (string.IsNullOrEmpty(word))
-                throw new ArgumentException("Word to check is empty or null", nameof(word));
-
-            if (!findFirst && word.Contains(firstWordCutted))
-            {
-                findFirst = true;
-                this.entry += word;
-            }
-            else if (findFirst && word.Contains(secondWordCutted) && this.distance <= distance)
-            {
-                this.distance = 0;
-                this.findFirst = false;
-                this.entries.Add(entry + ' ' + word);
-                this.entry = "";
-            }
-            else if (findFirst)
-            {
-                this.distance++;
-                this.entry += ' ' + word;
-            }
-
-            if (findFirst && this.distance > distance)
-            {
-                this.distance = 0;
-                this.findFirst = false;
-                this.entry = "";
-            }
-        }
-
-        public string GetMain() => this.isFirstWordMain ? this.firstWord : this.secondWord;
-
-        public SecWordType GetSecWordType() => this.secWordType;
-
-        public List<string> GetEntries() => this.entries;
     }
 }

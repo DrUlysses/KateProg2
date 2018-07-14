@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindowForm));
             this.firstWordsInputBox = new System.Windows.Forms.RichTextBox();
-            this.outputBox = new System.Windows.Forms.RichTextBox();
             this.addDocumentButton = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
             this.pathToOpenedFilesLLabel = new System.Windows.Forms.Label();
@@ -40,6 +39,7 @@
             this.dragNDropImageBox = new System.Windows.Forms.PictureBox();
             this.SelectedFilesPictureBox = new System.Windows.Forms.PictureBox();
             this.OpenedFilesBox = new System.Windows.Forms.CheckedListBox();
+            this.OutputListBox = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.dragNDropImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SelectedFilesPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -49,41 +49,31 @@
             this.firstWordsInputBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.firstWordsInputBox.Location = new System.Drawing.Point(12, 23);
             this.firstWordsInputBox.Name = "firstWordsInputBox";
-            this.firstWordsInputBox.Size = new System.Drawing.Size(272, 451);
+            this.firstWordsInputBox.Size = new System.Drawing.Size(272, 446);
             this.firstWordsInputBox.TabIndex = 0;
             this.firstWordsInputBox.Text = "Main Words";
-            // 
-            // outputBox
-            // 
-            this.outputBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.outputBox.Location = new System.Drawing.Point(290, 23);
-            this.outputBox.Name = "outputBox";
-            this.outputBox.ReadOnly = true;
-            this.outputBox.Size = new System.Drawing.Size(283, 451);
-            this.outputBox.TabIndex = 3;
-            this.outputBox.Text = "OutputWord [positive (0) negative (0) neutral (0)]";
             // 
             // addDocumentButton
             // 
             this.addDocumentButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.addDocumentButton.Location = new System.Drawing.Point(579, 344);
+            this.addDocumentButton.Location = new System.Drawing.Point(579, 341);
             this.addDocumentButton.Name = "addDocumentButton";
             this.addDocumentButton.Size = new System.Drawing.Size(151, 62);
             this.addDocumentButton.TabIndex = 4;
             this.addDocumentButton.Text = "Add Document";
             this.addDocumentButton.UseVisualStyleBackColor = true;
-            this.addDocumentButton.Click += new System.EventHandler(this.button1_Click);
+            this.addDocumentButton.Click += new System.EventHandler(this.Button1_Click);
             // 
             // runButton
             // 
             this.runButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.runButton.Location = new System.Drawing.Point(579, 278);
+            this.runButton.Location = new System.Drawing.Point(579, 273);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(151, 62);
             this.runButton.TabIndex = 4;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.button2_Click);
+            this.runButton.Click += new System.EventHandler(this.Button2_Click);
             // 
             // pathToOpenedFilesLLabel
             // 
@@ -112,18 +102,18 @@
             // loadSecWordsButton
             // 
             this.loadSecWordsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.loadSecWordsButton.Location = new System.Drawing.Point(579, 412);
+            this.loadSecWordsButton.Location = new System.Drawing.Point(579, 407);
             this.loadSecWordsButton.Name = "loadSecWordsButton";
             this.loadSecWordsButton.Size = new System.Drawing.Size(151, 62);
             this.loadSecWordsButton.TabIndex = 4;
             this.loadSecWordsButton.Text = "Load Secondary Words";
             this.loadSecWordsButton.UseVisualStyleBackColor = true;
-            this.loadSecWordsButton.Click += new System.EventHandler(this.loadSecWordsButton_Click);
+            this.loadSecWordsButton.Click += new System.EventHandler(this.LoadSecWordsButton_Click);
             // 
             // dragNDropImageBox
             // 
             this.dragNDropImageBox.Image = ((System.Drawing.Image)(resources.GetObject("dragNDropImageBox.Image")));
-            this.dragNDropImageBox.Location = new System.Drawing.Point(719, 477);
+            this.dragNDropImageBox.Location = new System.Drawing.Point(713, 477);
             this.dragNDropImageBox.Name = "dragNDropImageBox";
             this.dragNDropImageBox.Size = new System.Drawing.Size(744, 504);
             this.dragNDropImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -152,19 +142,28 @@
             this.OpenedFilesBox.TabIndex = 10;
             this.OpenedFilesBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.OpenedFilesBox_ItemCheck);
             // 
+            // OutputListBox
+            // 
+            this.OutputListBox.FormattingEnabled = true;
+            this.OutputListBox.Location = new System.Drawing.Point(290, 23);
+            this.OutputListBox.Name = "OutputListBox";
+            this.OutputListBox.Size = new System.Drawing.Size(283, 446);
+            this.OutputListBox.TabIndex = 11;
+            this.OutputListBox.SelectedValueChanged += new System.EventHandler(this.OutputListBox_SelectedValueChanged);
+            // 
             // MainWindowForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(742, 500);
+            this.Controls.Add(this.OutputListBox);
             this.Controls.Add(this.dragNDropImageBox);
             this.Controls.Add(this.averageWordsInSentanceLabel);
             this.Controls.Add(this.pathToOpenedFilesLLabel);
             this.Controls.Add(this.SelectedFilesPictureBox);
             this.Controls.Add(this.runButton);
             this.Controls.Add(this.addDocumentButton);
-            this.Controls.Add(this.outputBox);
             this.Controls.Add(this.firstWordsInputBox);
             this.Controls.Add(this.loadSecWordsButton);
             this.Controls.Add(this.OpenedFilesBox);
@@ -186,7 +185,6 @@
         #endregion
 
         private System.Windows.Forms.RichTextBox firstWordsInputBox;
-        private System.Windows.Forms.RichTextBox outputBox;
         private System.Windows.Forms.Button addDocumentButton;
         private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.PictureBox SelectedFilesPictureBox;
@@ -196,6 +194,7 @@
         private System.Windows.Forms.PictureBox dragNDropImageBox;
         private System.Windows.Forms.Button loadSecWordsButton;
         private System.Windows.Forms.CheckedListBox OpenedFilesBox;
+        private System.Windows.Forms.ListBox OutputListBox;
     }
 }
 
