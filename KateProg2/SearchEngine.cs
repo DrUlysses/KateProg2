@@ -107,12 +107,15 @@ namespace KateProg2
             neutralWords.Add(word);
         }
 
-        public void AddMainWord(string word)
+        public void AddMainWord(string word, string documentName)
         {
             if (string.IsNullOrEmpty(word))
                 throw new ArgumentException("Main word to add is null or empty", nameof(word));
 
-            this.mainWords.Add(word, new MainWord(word));
+            if (string.IsNullOrEmpty(documentName))
+                throw new ArgumentException("documentName is null or empty", nameof(documentName));
+
+            this.mainWords.Add(word, new MainWord(word, documentName));
         }
 
         public void ClearResults()
@@ -123,22 +126,25 @@ namespace KateProg2
 
         public void ComputeEntries()
         {
-            Parallel.ForEach(this.mainWords.Values, (mainWord) =>
+            Parallel.ForEach(this.documents, (currentDocument) =>
             {
-                Parallel.ForEach(this.negativeWords, (negativeWord) =>
+                Parallel.ForEach(this.mainWords.Values, (mainWord) =>
                 {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), negativeWord, true, SecWordType.NEGATIVE));
-                    this.wordsPairs.Add(new WordsPair(negativeWord, mainWord.GetWord(), false, SecWordType.NEGATIVE));
-                });
-                Parallel.ForEach(this.positiveWords, (positiveWord) =>
-                {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), positiveWord, true, SecWordType.POSITIVE));
-                    this.wordsPairs.Add(new WordsPair(positiveWord, mainWord.GetWord(), false, SecWordType.POSITIVE));
-                });
-                Parallel.ForEach(this.neutralWords, (neutralWord) =>
-                {
-                    this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), neutralWord, true, SecWordType.NEUTRAL));
-                    this.wordsPairs.Add(new WordsPair(neutralWord, mainWord.GetWord(), false, SecWordType.NEUTRAL));
+                    Parallel.ForEach(this.negativeWords, (negativeWord) =>
+                    {
+                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), negativeWord, true, SecWordType.NEGATIVE, currentDocument.GetPath()));
+                        this.wordsPairs.Add(new WordsPair(negativeWord, mainWord.GetWord(), false, SecWordType.NEGATIVE, currentDocument.GetPath()));
+                    });
+                    Parallel.ForEach(this.positiveWords, (positiveWord) =>
+                    {
+                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), positiveWord, true, SecWordType.POSITIVE, currentDocument.GetPath()));
+                        this.wordsPairs.Add(new WordsPair(positiveWord, mainWord.GetWord(), false, SecWordType.POSITIVE, currentDocument.GetPath()));
+                    });
+                    Parallel.ForEach(this.neutralWords, (neutralWord) =>
+                    {
+                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), neutralWord, true, SecWordType.NEUTRAL, currentDocument.GetPath()));
+                        this.wordsPairs.Add(new WordsPair(neutralWord, mainWord.GetWord(), false, SecWordType.NEUTRAL, currentDocument.GetPath()));
+                    });
                 });
             });
 
@@ -152,7 +158,8 @@ namespace KateProg2
                         foreach (string word in lineWords)
                             Parallel.ForEach(this.wordsPairs, (wordsPair) =>
                             {
-                                wordsPair.CheckWord(word.ToLower(), currentDocument.GetAverageWordsInSentence());
+                                if (wordsPair != null)
+                                    wordsPair.CheckWord(word.ToLower(), currentDocument.GetAverageWordsInSentence());
                             });
                     }
                 }
@@ -160,7 +167,8 @@ namespace KateProg2
 
             Parallel.ForEach(this.wordsPairs, (wordPair) =>
             {
-                this.mainWords[wordPair.GetMain()].AddEntries(wordPair);
+                if (wordPair != null)
+                    this.mainWords[wordPair.GetMain()].AddEntries(wordPair);
             });
         }
 

@@ -6,15 +6,21 @@ namespace KateProg2
     public class MainWord
     {
         private string word;
+        private string documentName;
         private List<string> positiveEntries;
         private List<string> negativeEntries;
         private List<string> neutralEntries;
 
-        public MainWord(string word)
+        public MainWord(string word, string documentName)
         {
             if (string.IsNullOrEmpty(word))
                 throw new ArgumentException("First word is null or empty", nameof(word));
+
+            if (string.IsNullOrEmpty(documentName))
+                throw new ArgumentException("documentName is null or empty", nameof(documentName));
+
             this.word = word;
+            this.documentName = documentName;
             this.positiveEntries = new List<string>();
             this.negativeEntries = new List<string>();
             this.neutralEntries = new List<string>();
@@ -24,20 +30,23 @@ namespace KateProg2
 
         public void AddEntries(WordsPair wordsPair)
         {
-            SecWordType secWordType = wordsPair.GetSecWordType();
-            switch (secWordType)
+            lock (this)
             {
-                case SecWordType.POSITIVE:
-                    this.positiveEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                case SecWordType.NEGATIVE:
-                    this.negativeEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                case SecWordType.NEUTRAL:
-                    this.neutralEntries.AddRange(wordsPair.GetEntries());
-                    break;
-                default:
-                    break;
+                SecWordType secWordType = wordsPair.GetSecWordType();
+                switch (secWordType)
+                {
+                    case SecWordType.POSITIVE:
+                        this.positiveEntries.AddRange(wordsPair.GetEntries());
+                        break;
+                    case SecWordType.NEGATIVE:
+                        this.negativeEntries.AddRange(wordsPair.GetEntries());
+                        break;
+                    case SecWordType.NEUTRAL:
+                        this.neutralEntries.AddRange(wordsPair.GetEntries());
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -46,18 +55,21 @@ namespace KateProg2
             uint negativeCount = (uint)this.negativeEntries.Count;
             uint positiveCount = (uint)this.positiveEntries.Count;
             uint neutralCount = (uint)this.neutralEntries.Count;
+
+            string result = "{ " + this.documentName + " } \n\r" + this.word;
+
             if (negativeCount > positiveCount && negativeCount >= 2)
-                return this.word + " [ positive ( " + positiveCount +
+                return result + " [ positive ( " + positiveCount +
                                     " )  ***negative ( " + negativeCount +
                                     " )***  neutral ( " + neutralCount +
                                     " ) ]";
             else if (positiveCount > negativeCount && positiveCount >= 2)
-                return this.word + " [ ***positive ( " + positiveCount +
+                return result + " [ ***positive ( " + positiveCount +
                                     " )***  negative ( " + negativeCount +
                                     " )  neutral ( " + neutralCount +
                                     " ) ]";
             else
-                return this.word + " [ positive ( " + positiveCount +
+                return result + " [ positive ( " + positiveCount +
                                     " )  negative ( " + negativeCount +
                                     " )  ***neutral ( " + neutralCount +
                                     " )*** ]";

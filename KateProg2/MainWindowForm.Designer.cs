@@ -56,7 +56,7 @@
             // addDocumentButton
             // 
             this.addDocumentButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.addDocumentButton.Location = new System.Drawing.Point(579, 341);
+            this.addDocumentButton.Location = new System.Drawing.Point(813, 341);
             this.addDocumentButton.Name = "addDocumentButton";
             this.addDocumentButton.Size = new System.Drawing.Size(151, 62);
             this.addDocumentButton.TabIndex = 4;
@@ -67,7 +67,7 @@
             // runButton
             // 
             this.runButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.runButton.Location = new System.Drawing.Point(579, 273);
+            this.runButton.Location = new System.Drawing.Point(813, 273);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(151, 62);
             this.runButton.TabIndex = 4;
@@ -102,7 +102,7 @@
             // loadSecWordsButton
             // 
             this.loadSecWordsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.loadSecWordsButton.Location = new System.Drawing.Point(579, 407);
+            this.loadSecWordsButton.Location = new System.Drawing.Point(813, 407);
             this.loadSecWordsButton.Name = "loadSecWordsButton";
             this.loadSecWordsButton.Size = new System.Drawing.Size(151, 62);
             this.loadSecWordsButton.TabIndex = 4;
@@ -113,7 +113,7 @@
             // dragNDropImageBox
             // 
             this.dragNDropImageBox.Image = ((System.Drawing.Image)(resources.GetObject("dragNDropImageBox.Image")));
-            this.dragNDropImageBox.Location = new System.Drawing.Point(713, 477);
+            this.dragNDropImageBox.Location = new System.Drawing.Point(119, -3);
             this.dragNDropImageBox.Name = "dragNDropImageBox";
             this.dragNDropImageBox.Size = new System.Drawing.Size(744, 504);
             this.dragNDropImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -124,7 +124,7 @@
             // SelectedFilesPictureBox
             // 
             this.SelectedFilesPictureBox.Image = global::KateProg2.Properties.Resources.Picture;
-            this.SelectedFilesPictureBox.Location = new System.Drawing.Point(579, 23);
+            this.SelectedFilesPictureBox.Location = new System.Drawing.Point(813, 23);
             this.SelectedFilesPictureBox.Name = "SelectedFilesPictureBox";
             this.SelectedFilesPictureBox.Size = new System.Drawing.Size(151, 244);
             this.SelectedFilesPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -137,7 +137,7 @@
             this.OpenedFilesBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.OpenedFilesBox.FormattingEnabled = true;
             this.OpenedFilesBox.HorizontalScrollbar = true;
-            this.OpenedFilesBox.Location = new System.Drawing.Point(579, 23);
+            this.OpenedFilesBox.Location = new System.Drawing.Point(813, 23);
             this.OpenedFilesBox.Name = "OpenedFilesBox";
             this.OpenedFilesBox.Size = new System.Drawing.Size(151, 244);
             this.OpenedFilesBox.TabIndex = 10;
@@ -149,7 +149,7 @@
             this.OutputListBox.FormattingEnabled = true;
             this.OutputListBox.Location = new System.Drawing.Point(290, 23);
             this.OutputListBox.Name = "OutputListBox";
-            this.OutputListBox.Size = new System.Drawing.Size(283, 446);
+            this.OutputListBox.Size = new System.Drawing.Size(517, 446);
             this.OutputListBox.TabIndex = 11;
             this.OutputListBox.SelectedValueChanged += new System.EventHandler(this.OutputListBox_SelectedValueChanged);
             // 
@@ -158,8 +158,7 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(742, 500);
-            this.Controls.Add(this.OutputListBox);
+            this.ClientSize = new System.Drawing.Size(976, 500);
             this.Controls.Add(this.dragNDropImageBox);
             this.Controls.Add(this.averageWordsInSentanceLabel);
             this.Controls.Add(this.pathToOpenedFilesLLabel);
@@ -169,6 +168,7 @@
             this.Controls.Add(this.firstWordsInputBox);
             this.Controls.Add(this.loadSecWordsButton);
             this.Controls.Add(this.OpenedFilesBox);
+            this.Controls.Add(this.OutputListBox);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

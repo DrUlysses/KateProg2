@@ -47,8 +47,9 @@ namespace KateProg2 {
             OutputListBox.Items.Clear();
             searchEngine.ClearResults();
             // Read dictionary words
-            foreach (string temp in firstWordsInputBox.Text.Split('\r', '\n'))
-                searchEngine.AddMainWord(temp.ToLower());
+            foreach (object tempDocument in OpenedFilesBox.Items)
+                foreach (string tempWordName in firstWordsInputBox.Text.Split('\r', '\n'))
+                    searchEngine.AddMainWord(tempWordName.ToLower(), tempDocument.ToString());
             // Run calculation
             searchEngine.ComputeEntries();
             // Output
@@ -146,16 +147,17 @@ namespace KateProg2 {
             if (OpenedFilesBox.Items.Count > 1)
                 OpenedFilesBox.Items.RemoveAt(OpenedFilesBox.SelectedIndex);
             else
-            {
                 SelectedFilesPictureBox.Visible = true;
-            }
         }
 
         private void OutputListBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            string tempWordName = OutputListBox.SelectedItem.ToString().Split('[')[0];
+            string tempWordName = OutputListBox.SelectedItem.ToString();
+            int startIndex = tempWordName.IndexOf("\r") + 1;
+            int wordLength = tempWordName.IndexOf(" [ ") - startIndex;
+            tempWordName = tempWordName.Substring(startIndex, wordLength);
 
-            MainWord tempWord = searchEngine.GetMainWord(tempWordName.Substring(0, tempWordName.Length - 1));
+            MainWord tempWord = searchEngine.GetMainWord(tempWordName);
 
             MainWordEntriesForm form = new MainWordEntriesForm(tempWord);
             

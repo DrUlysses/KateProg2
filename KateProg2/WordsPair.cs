@@ -15,8 +15,9 @@ namespace KateProg2
         private string entry;
         private bool isFirstWordMain;
         private SecWordType secWordType;
+        private string documentName;
 
-        public WordsPair(string firstWord, string secondWord, bool isFirstWordMain, SecWordType secWordType)
+        public WordsPair(string firstWord, string secondWord, bool isFirstWordMain, SecWordType secWordType, string documentName)
         {
             if (string.IsNullOrEmpty(firstWord))
                 throw new ArgumentException("firstWord is null or empty", nameof(firstWord));
@@ -24,10 +25,14 @@ namespace KateProg2
             if (string.IsNullOrEmpty(secondWord))
                 throw new ArgumentException("secondWord is null or empty", nameof(secondWord));
 
+            if (string.IsNullOrEmpty(documentName))
+                throw new ArgumentException("documentName is null or empty", nameof(documentName));
+
             this.firstWord = firstWord;
             this.secondWord = secondWord;
             this.isFirstWordMain = isFirstWordMain;
             this.secWordType = secWordType;
+            this.documentName = documentName;
 
             int tempLength = firstWord.Length;
             if (tempLength > 3)
