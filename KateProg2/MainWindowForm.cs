@@ -33,30 +33,13 @@ namespace KateProg2 {
 
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                averageWordsInSentanceLabel.Text = searchEngine.AddDocument(openFile.FileName);
+                StatusBar.Text = searchEngine.AddDocument(openFile.FileName);
                 pathToOpenedFilesLLabel.Text = openFile.FileName;
                 SelectedFilesPictureBox.Visible = false;
-                OpenedFilesBox.Items.Add(openFile.SafeFileName);
+                OpenedFilesBox.Items.Add(openFile.FileName);
                 if (searchEngine.GetDocumentsCount() == 1 && OpenedFilesBox.Items.Count > 1)
                     OpenedFilesBox.Items.RemoveAt(0);
             }
-        }
-
-        private void Button2_Click(object sender, EventArgs e) {
-            // Clear previous output computation
-            OutputListBox.Items.Clear();
-            searchEngine.ClearResults();
-            // Read dictionary words
-            foreach (object tempDocument in OpenedFilesBox.Items)
-                foreach (string tempWordName in firstWordsInputBox.Text.Split('\r', '\n'))
-                    searchEngine.AddMainWord(tempWordName.ToLower(), tempDocument.ToString());
-            // Run calculation
-            searchEngine.ComputeEntries();
-            // Output
-            Parallel.ForEach(searchEngine.GetMainWords(), (mainWord) =>
-            {
-                OutputListBox.Items.Add(mainWord.ToString());
-            });
         }
 
         // Drag and drop
@@ -74,7 +57,15 @@ namespace KateProg2 {
 
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            searchEngine.AddDocument(files[0]);
+            foreach (string file in files)
+            {
+                StatusBar.Text = searchEngine.AddDocument(file);
+                pathToOpenedFilesLLabel.Text = file;
+                SelectedFilesPictureBox.Visible = false;
+                OpenedFilesBox.Items.Add(file);
+                if (searchEngine.GetDocumentsCount() == 1 && OpenedFilesBox.Items.Count > 1)
+                    OpenedFilesBox.Items.RemoveAt(0);
+            }
         }
 
         private void Form1_onDragLeave(object sender, EventArgs e) {
@@ -135,7 +126,7 @@ namespace KateProg2 {
                     }
                 }
                 pathToOpenedFilesLLabel.Text = openFile.FileName;
-                averageWordsInSentanceLabel.Text = "Loaded Positive: " + posCount + " Negative: " + negCount + " Neutral: " + neutrCount + " .";
+                StatusBar.Text = "Loaded Positive: " + posCount + " Negative: " + negCount + " Neutral: " + neutrCount + " .";
             }
         }
 
@@ -143,7 +134,7 @@ namespace KateProg2 {
         {
             searchEngine.RemoveDocument(OpenedFilesBox.SelectedItem.ToString());
             pathToOpenedFilesLLabel.Text = "";
-            averageWordsInSentanceLabel.Text = "";
+            StatusBar.Text = "";
             if (OpenedFilesBox.Items.Count > 1)
                 OpenedFilesBox.Items.RemoveAt(OpenedFilesBox.SelectedIndex);
             else
@@ -152,16 +143,64 @@ namespace KateProg2 {
 
         private void OutputListBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            string tempWordName = OutputListBox.SelectedItem.ToString();
-            int startIndex = tempWordName.IndexOf("\r") + 1;
-            int wordLength = tempWordName.IndexOf(" [ ") - startIndex;
-            tempWordName = tempWordName.Substring(startIndex, wordLength);
+            try
+            {
+                string tempWordName = OutputListBox.SelectedItem.ToString();
+                int startIndex = tempWordName.IndexOf("\r") + 1;
+                int wordLength = tempWordName.IndexOf(" [ ") - startIndex;
 
-            MainWord tempWord = searchEngine.GetMainWord(tempWordName);
+                int docNameStartIndex = tempWordName.IndexOf("}");
+                string tempDocumentName = tempWordName.Substring(2, docNameStartIndex - 3);
 
-            MainWordEntriesForm form = new MainWordEntriesForm(tempWord);
-            
-            form.Show();
+                tempWordName = tempWordName.Substring(startIndex, wordLength);
+
+                MainWord tempWord = searchEngine.GetMainWord(tempDocumentName, tempWordName);
+
+                if (tempWord != null)
+                {
+                    MainWordEntriesForm form = new MainWordEntriesForm(tempWord);
+
+                    form.Show();
+                }
+            }
+            catch (System.NullReferenceException)
+            {
+                return;
+            }
+        }
+
+        private async void RunButton_ClickAsync(object sender, EventArgs e)
+        {
+            // Clear previous output computation
+            OutputListBox.Items.Clear();
+            searchEngine.ClearResults();
+            // Read dictionary words
+            foreach (object tempDocument in OpenedFilesBox.Items)
+                foreach (string tempWordName in firstWordsInputBox.Text.Split('\r', '\n'))
+                    searchEngine.AddMainWord(tempWordName.ToLower(), tempDocument.ToString());
+            // Generate words pairs
+            searchEngine.GenerateWordsPairs();
+            // Clear Status bar
+            int doneDocsNum = 0;
+            StatusBar.Text = doneDocsNum + " / " + OpenedFilesBox.Items.Count;
+
+            // Run calculation
+            foreach (object tempDocument in OpenedFilesBox.Items)
+            {
+                var calcTask = CalculateOutput(tempDocument);
+                await calcTask;
+                doneDocsNum++;
+                StatusBar.Text = doneDocsNum + " / " + OpenedFilesBox.Items.Count;
+            }
+
+        }
+
+        private async Task CalculateOutput(object tempDocument)
+        {
+            await searchEngine.ComputeEntries(tempDocument.ToString());
+            // Output
+            foreach (MainWord mainWord in searchEngine.GetMainWords(tempDocument.ToString()))
+                OutputListBox.Items.Add(mainWord.ToString());
         }
     }
 }

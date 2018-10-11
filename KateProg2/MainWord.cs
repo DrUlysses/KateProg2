@@ -7,6 +7,7 @@ namespace KateProg2
     {
         private string word;
         private string documentName;
+        private List<WordsPair> wordsPairs;
         private List<string> positiveEntries;
         private List<string> negativeEntries;
         private List<string> neutralEntries;
@@ -24,6 +25,7 @@ namespace KateProg2
             this.positiveEntries = new List<string>();
             this.negativeEntries = new List<string>();
             this.neutralEntries = new List<string>();
+            this.wordsPairs = new List<WordsPair>();
         }
 
         public string GetWord() => this.word;

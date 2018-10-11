@@ -11,18 +11,14 @@ namespace KateProg2
 {
     public class SearchEngine
     {
-        private List<Document> documents;
-        private Dictionary<string, MainWord> mainWords;
-        private List<WordsPair> wordsPairs;
+        private Dictionary<string, Document> documents;
         private List<string> negativeWords;
         private List<string> positiveWords;
         private List<string> neutralWords;
 
         public SearchEngine()
         {
-            this.documents = new List<Document>();
-            this.mainWords = new Dictionary<string, MainWord>();
-            this.wordsPairs = new List<WordsPair>();
+            this.documents = new Dictionary<string, Document>();
             this.negativeWords = new List<string>();
             this.positiveWords = new List<string>();
             this.neutralWords = new List<string>();
@@ -69,17 +65,17 @@ namespace KateProg2
                     while (!str.EndOfStream)
                         document.textBox.AppendText(str.ReadLine().ToLower() + "\r\n");
 
-            this.documents.Add(document);
+            this.documents.Add(fileName, document);
             //check counts
             return "Words in File ~ " + document.GetWordsCount() + ",  Average Words in the Sentence: " + document.GetAverageWordsInSentence();
         }
 
         public void RemoveDocument(string path)
         {
-            Parallel.ForEach(this.documents, (document) =>
+            Parallel.ForEach(this.documents.Values, (document) =>
             {
                 if (document.GetPath().Contains(path))
-                    this.documents.Remove(document);
+                    this.documents.Remove(path);
             });
         }
 
@@ -115,65 +111,49 @@ namespace KateProg2
             if (string.IsNullOrEmpty(documentName))
                 throw new ArgumentException("documentName is null or empty", nameof(documentName));
 
-            this.mainWords.Add(word, new MainWord(word, documentName));
+            if (this.documents.ContainsKey(documentName))
+                this.documents[documentName].AddMainWord(new MainWord(word, documentName));
         }
 
         public void ClearResults()
         {
-            this.wordsPairs = new List<WordsPair>();
-            this.mainWords = new Dictionary<string, MainWord>();
+            foreach (Document tempDoc in this.documents.Values)
+                tempDoc.DeleteWords();
         }
 
-        public void ComputeEntries()
+        public void GenerateWordsPairs()
         {
-            Parallel.ForEach(this.documents, (currentDocument) =>
+            foreach (Document currentDocument in this.documents.Values)
             {
-                Parallel.ForEach(this.mainWords.Values, (mainWord) =>
-                {
-                    Parallel.ForEach(this.negativeWords, (negativeWord) =>
-                    {
-                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), negativeWord, true, SecWordType.NEGATIVE, currentDocument.GetPath()));
-                        this.wordsPairs.Add(new WordsPair(negativeWord, mainWord.GetWord(), false, SecWordType.NEGATIVE, currentDocument.GetPath()));
-                    });
-                    Parallel.ForEach(this.positiveWords, (positiveWord) =>
-                    {
-                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), positiveWord, true, SecWordType.POSITIVE, currentDocument.GetPath()));
-                        this.wordsPairs.Add(new WordsPair(positiveWord, mainWord.GetWord(), false, SecWordType.POSITIVE, currentDocument.GetPath()));
-                    });
-                    Parallel.ForEach(this.neutralWords, (neutralWord) =>
-                    {
-                        this.wordsPairs.Add(new WordsPair(mainWord.GetWord(), neutralWord, true, SecWordType.NEUTRAL, currentDocument.GetPath()));
-                        this.wordsPairs.Add(new WordsPair(neutralWord, mainWord.GetWord(), false, SecWordType.NEUTRAL, currentDocument.GetPath()));
-                    });
-                });
-            });
-
-            Parallel.ForEach(this.documents, (currentDocument) =>
-            {
-                foreach (string line in currentDocument.textBox.Text.Split('\r', '\n'))
-                {
-                    string[] lineWords = line.Split(' ');
-                    if (lineWords.Length != 0 && lineWords[0] != "")
-                    { //TODO: handle "-" on line endings.
-                        foreach (string word in lineWords)
-                            Parallel.ForEach(this.wordsPairs, (wordsPair) =>
-                            {
-                                if (wordsPair != null)
-                                    wordsPair.CheckWord(word.ToLower(), currentDocument.GetAverageWordsInSentence());
-                            });
-                    }
-                }
-            });
-
-            Parallel.ForEach(this.wordsPairs, (wordPair) =>
-            {
-                if (wordPair != null)
-                    this.mainWords[wordPair.GetMain()].AddEntries(wordPair);
-            });
+                currentDocument.AddNegativeWords(this.negativeWords);
+                currentDocument.AddPositiveWords(this.positiveWords);
+                currentDocument.AddNeutralWords(this.neutralWords);
+            }
         }
 
-        public List<MainWord> GetMainWords() => new List<MainWord>(this.mainWords.Values);
+        public async Task ComputeEntries(string documentName)
+        {
+            if (this.documents.ContainsKey(documentName))
+            {
+                await this.documents[documentName].ComputeEntries();
+                this.documents[documentName].UpdateEntries();
+            }
+        }
 
-        public MainWord GetMainWord(string word) => this.mainWords[word];
+        public List<MainWord> GetMainWords(string documentName)
+        {
+            if (this.documents.ContainsKey(documentName))
+                return this.documents[documentName].GetMainWords();
+            else
+                return null;
+        }
+
+        public MainWord GetMainWord(string documentName, string wordName)
+        {
+            if (this.documents.ContainsKey(documentName))
+                return this.documents[documentName].GetMainWord(wordName);
+            else
+                return null;
+        }
     }
 }

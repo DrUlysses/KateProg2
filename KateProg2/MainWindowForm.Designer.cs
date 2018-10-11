@@ -33,13 +33,14 @@
             this.addDocumentButton = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
             this.pathToOpenedFilesLLabel = new System.Windows.Forms.Label();
-            this.averageWordsInSentanceLabel = new System.Windows.Forms.Label();
+            this.StatusBar = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.loadSecWordsButton = new System.Windows.Forms.Button();
             this.dragNDropImageBox = new System.Windows.Forms.PictureBox();
             this.SelectedFilesPictureBox = new System.Windows.Forms.PictureBox();
             this.OpenedFilesBox = new System.Windows.Forms.CheckedListBox();
             this.OutputListBox = new System.Windows.Forms.ListBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.dragNDropImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SelectedFilesPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -56,7 +57,7 @@
             // addDocumentButton
             // 
             this.addDocumentButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.addDocumentButton.Location = new System.Drawing.Point(813, 341);
+            this.addDocumentButton.Location = new System.Drawing.Point(1188, 341);
             this.addDocumentButton.Name = "addDocumentButton";
             this.addDocumentButton.Size = new System.Drawing.Size(151, 62);
             this.addDocumentButton.TabIndex = 4;
@@ -67,13 +68,13 @@
             // runButton
             // 
             this.runButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.runButton.Location = new System.Drawing.Point(813, 273);
+            this.runButton.Location = new System.Drawing.Point(1188, 273);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(151, 62);
             this.runButton.TabIndex = 4;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.Button2_Click);
+            this.runButton.Click += new System.EventHandler(this.RunButton_ClickAsync);
             // 
             // pathToOpenedFilesLLabel
             // 
@@ -85,15 +86,15 @@
             this.pathToOpenedFilesLLabel.TabIndex = 7;
             this.pathToOpenedFilesLLabel.Text = "No File Selected";
             // 
-            // averageWordsInSentanceLabel
+            // StatusBar
             // 
-            this.averageWordsInSentanceLabel.AutoSize = true;
-            this.averageWordsInSentanceLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.averageWordsInSentanceLabel.Location = new System.Drawing.Point(12, 477);
-            this.averageWordsInSentanceLabel.Name = "averageWordsInSentanceLabel";
-            this.averageWordsInSentanceLabel.Size = new System.Drawing.Size(85, 13);
-            this.averageWordsInSentanceLabel.TabIndex = 8;
-            this.averageWordsInSentanceLabel.Text = "No File Selected";
+            this.StatusBar.AutoSize = true;
+            this.StatusBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.StatusBar.Location = new System.Drawing.Point(12, 477);
+            this.StatusBar.Name = "StatusBar";
+            this.StatusBar.Size = new System.Drawing.Size(85, 13);
+            this.StatusBar.TabIndex = 8;
+            this.StatusBar.Text = "No File Selected";
             // 
             // openFileDialog1
             // 
@@ -102,7 +103,7 @@
             // loadSecWordsButton
             // 
             this.loadSecWordsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.loadSecWordsButton.Location = new System.Drawing.Point(813, 407);
+            this.loadSecWordsButton.Location = new System.Drawing.Point(1188, 407);
             this.loadSecWordsButton.Name = "loadSecWordsButton";
             this.loadSecWordsButton.Size = new System.Drawing.Size(151, 62);
             this.loadSecWordsButton.TabIndex = 4;
@@ -113,9 +114,9 @@
             // dragNDropImageBox
             // 
             this.dragNDropImageBox.Image = ((System.Drawing.Image)(resources.GetObject("dragNDropImageBox.Image")));
-            this.dragNDropImageBox.Location = new System.Drawing.Point(119, -3);
+            this.dragNDropImageBox.Location = new System.Drawing.Point(-1, -2);
             this.dragNDropImageBox.Name = "dragNDropImageBox";
-            this.dragNDropImageBox.Size = new System.Drawing.Size(744, 504);
+            this.dragNDropImageBox.Size = new System.Drawing.Size(1351, 503);
             this.dragNDropImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.dragNDropImageBox.TabIndex = 9;
             this.dragNDropImageBox.TabStop = false;
@@ -124,7 +125,7 @@
             // SelectedFilesPictureBox
             // 
             this.SelectedFilesPictureBox.Image = global::KateProg2.Properties.Resources.Picture;
-            this.SelectedFilesPictureBox.Location = new System.Drawing.Point(813, 23);
+            this.SelectedFilesPictureBox.Location = new System.Drawing.Point(1188, 23);
             this.SelectedFilesPictureBox.Name = "SelectedFilesPictureBox";
             this.SelectedFilesPictureBox.Size = new System.Drawing.Size(151, 244);
             this.SelectedFilesPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -137,7 +138,7 @@
             this.OpenedFilesBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.OpenedFilesBox.FormattingEnabled = true;
             this.OpenedFilesBox.HorizontalScrollbar = true;
-            this.OpenedFilesBox.Location = new System.Drawing.Point(813, 23);
+            this.OpenedFilesBox.Location = new System.Drawing.Point(1188, 23);
             this.OpenedFilesBox.Name = "OpenedFilesBox";
             this.OpenedFilesBox.Size = new System.Drawing.Size(151, 244);
             this.OpenedFilesBox.TabIndex = 10;
@@ -149,7 +150,7 @@
             this.OutputListBox.FormattingEnabled = true;
             this.OutputListBox.Location = new System.Drawing.Point(290, 23);
             this.OutputListBox.Name = "OutputListBox";
-            this.OutputListBox.Size = new System.Drawing.Size(517, 446);
+            this.OutputListBox.Size = new System.Drawing.Size(892, 446);
             this.OutputListBox.TabIndex = 11;
             this.OutputListBox.SelectedValueChanged += new System.EventHandler(this.OutputListBox_SelectedValueChanged);
             // 
@@ -158,9 +159,9 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(976, 500);
+            this.ClientSize = new System.Drawing.Size(1351, 500);
             this.Controls.Add(this.dragNDropImageBox);
-            this.Controls.Add(this.averageWordsInSentanceLabel);
+            this.Controls.Add(this.StatusBar);
             this.Controls.Add(this.pathToOpenedFilesLLabel);
             this.Controls.Add(this.SelectedFilesPictureBox);
             this.Controls.Add(this.runButton);
@@ -191,12 +192,13 @@
         private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.PictureBox SelectedFilesPictureBox;
         private System.Windows.Forms.Label pathToOpenedFilesLLabel;
-        private System.Windows.Forms.Label averageWordsInSentanceLabel;
+        private System.Windows.Forms.Label StatusBar;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.PictureBox dragNDropImageBox;
         private System.Windows.Forms.Button loadSecWordsButton;
         private System.Windows.Forms.CheckedListBox OpenedFilesBox;
         private System.Windows.Forms.ListBox OutputListBox;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

@@ -17,20 +17,14 @@ namespace KateProg2
 
                 MainWordLabel.Text = this.mainWord.GetWord();
 
-                Parallel.ForEach(this.mainWord.GetPositiveEntries(), (posEntry) =>
-                {
+                foreach (string posEntry in this.mainWord.GetPositiveEntries())
                     PositiveWordsRichTextBox.Text += posEntry + "\n\r";
-                });
 
-                Parallel.ForEach(this.mainWord.GetNegativeEntries(), (negEntry) =>
-                {
+                foreach (string negEntry in this.mainWord.GetNegativeEntries())
                     NegativeWordsRichTextBox.Text += negEntry + "\n\r";
-                });
 
-                Parallel.ForEach(this.mainWord.GetNeutralEntries(), (neutrEntry) =>
-                {
+                foreach (string neutrEntry in this.mainWord.GetNeutralEntries())
                     NeutralWordsRichTextBox.Text += neutrEntry + "\n\r";
-                });
             }
         }
 
